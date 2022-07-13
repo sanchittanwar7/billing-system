@@ -1,3 +1,3 @@
-export const paymentTypes = ["cash", "card", "upi"];
+export const paymentTypes = ["Cash", "Card", "UPI"];
 
-export const quantityUnits = ["piece", "meter"];
+export const quantityUnits = ["Piece", "Meter"];

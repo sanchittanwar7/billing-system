@@ -7,11 +7,11 @@ const AddItem = ({item, updateItem, removeItem}) => {
         key={quantityUnit}
         value={quantityUnit}
     >
-        quantityUnit
+        {quantityUnit}
     </option>);
 
     const updateDescription = (e) => {
-        updateItem({...item, descrition: e.target.value});
+        updateItem({...item, description: e.target.value});
     };
 
     const updateQuantity = (e) => {
@@ -30,24 +30,21 @@ const AddItem = ({item, updateItem, removeItem}) => {
         return (
             <Row>
                 <Form.Group as={Col} controlId="formGridCity" onChange={updateDescription}>
-                    <Form.Label>Description</Form.Label>
                     <Form.Control />
                 </Form.Group>
     
                 <Form.Group as={Col} controlId="formGridCity" onChange={updateQuantity}>
-                    <Form.Label>Quantity</Form.Label>
                     <Form.Control />
                 </Form.Group>
     
                 <Form.Group as={Col} controlId="formGridCity">
-                    <Form.Select defaultValue="" onChange={updateUnit} arial-label="Unit">
+                    <Form.Select defaultValue="" onChange={updateUnit}>
                         <option>Select a unit</option>
                         {renderUnits}
                     </Form.Select>
                 </Form.Group>
 
                 <Form.Group as={Col} controlId="formGridCity" onChange={updatePrice}>
-                    <Form.Label>Price</Form.Label>
                     <Form.Control />
                 </Form.Group>
 
@@ -59,6 +56,7 @@ const AddItem = ({item, updateItem, removeItem}) => {
                         X
                     </Button>
                 </Col>
+
             </Row>
         )
     }

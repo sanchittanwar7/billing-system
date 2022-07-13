@@ -1,6 +1,7 @@
 import {useState} from 'react'
-import {Form, Button, Row, Col} from 'react-bootstrap';
+import {Form, Button, Row, Col, Container} from 'react-bootstrap';
 import AddItem from './AddItem'
+import {paymentTypes} from '../constants/constants'
 
 const CreateBill = () => {
     const [formData, setFormData] = useState({
@@ -13,39 +14,108 @@ const CreateBill = () => {
 
     const [listId, setListId] = useState(1);
 
+    const renderPaymentOptions = paymentTypes.map(paymentType => <option
+        key={paymentType}
+        value={paymentType}
+    >
+        {paymentType}
+    </option>);
+
+    const updateDate = (e) => {
+        setFormData({...formData, date: e.target.value});
+    };
+
+    const updateMonth = (e) => {
+        setFormData({...formData, month: e.target.value});
+    };
+
+    const updateYear = (e) => {
+        setFormData({...formData, year: e.target.value});
+    };
+
+    const updatePaymentType = (e) => {
+        setFormData({...formData, paymentType: e.target.value});
+    };
+
+    const formatDate = (date, month, year) => {
+        date = parseInt(date);
+        month = parseInt(month);
+        year = parseInt(year);
+        date = 1000000*date;
+        date = date + (month*10000);
+        date = date + year;
+        return date;
+    }
+
+    const calculateTotalAmount = (items) => {
+        let totalAmount = 0;
+        items.map(item => totalAmount += (item.quantity * item.price));
+        return totalAmount;
+    }
+
+    const submitBill = async () => {
+        console.log("sanctanw | bill: ", formData);
+        const formattedDate = formatDate(formData.date, formData.month, formData.year);
+        const totalAmount = calculateTotalAmount(formData.itemsList)
+        const bill = {
+            date: formattedDate,
+            paymentType: formData.paymentType,
+            items: formData.itemsList,
+            totalAmount
+        }
+        await fetch("http://localhost:5000/bill/add", {
+            method: "POST",
+            headers: {
+            "Content-Type": "application/json",
+            },
+            body: JSON.stringify(bill),
+        })
+        .catch(error => {
+            window.alert(error);
+            return;
+        });
+    };
+
     const renderForm = () => {
         return (
-            <Form>
-                {renderFixedInputs()}
-                {renderVariableInputs()}
-            </Form>
+            <Container>
+                <Row className="justify-content-md-center">
+                    <Form as={Col}>
+                        {renderFixedInputs()}
+                        {renderVariableInputs()}
+                    </Form>
+                </Row>
+                <Button
+                    variant="warning"
+                    onClick={submitBill}
+                >SAVE</Button>
+            </Container>
         )
     }
     
     const renderFixedInputs = () => {
         return (
             <Row className="mb-3">
-                <Form.Group as={Col} controlId="formGridCity">
+                <Form.Group as={Col} controlId="formGridCity" onChange={updateDate}>
                     <Form.Label>Date</Form.Label>
                     <Form.Control />
                 </Form.Group>
     
-                <Form.Group as={Col} controlId="formGridCity">
+                <Form.Group as={Col} controlId="formGridCity" onChange={updateMonth}>
                     <Form.Label>Month</Form.Label>
                     <Form.Control />
                 </Form.Group>
     
-                <Form.Group as={Col} controlId="formGridCity">
+                <Form.Group as={Col} controlId="formGridCity" onChange={updateYear}>
                     <Form.Label>Year</Form.Label>
                     <Form.Control />
                 </Form.Group>
     
                 <Form.Group as={Col} controlId="formGridState">
                     <Form.Label>Payment Type</Form.Label>
-                    <Form.Select defaultValue="Choose...">
-                        <option>Card</option>
-                        <option>Cash</option>
-                        <option>UPI</option>
+                    <Form.Select defaultValue="" onChange={updatePaymentType}>
+                        <option>Select a payment type</option>
+                        {renderPaymentOptions}
                     </Form.Select>
                 </Form.Group>
     
@@ -89,9 +159,10 @@ const CreateBill = () => {
     };
     
     const removeItem = (itemToBeRemoved) => {
-        const updatedItems = formData.itemsList.map(item => {
+        const updatedItems = [];
+        formData.itemsList.map(item => {
             if(itemToBeRemoved.listId !== item.listId) {
-                return item;
+                updatedItems.push(item);
             }
         });
         setFormData({...formData, itemsList: updatedItems});
